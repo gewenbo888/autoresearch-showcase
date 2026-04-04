@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoresearch — Autonomous AI Experimentation</title>
+<meta name="description" content="Visual explainer of Karpathy's autoresearch: autonomous AI agents that run experiments, optimize code, and improve themselves. From ML training to skill optimization.">
+<meta property="og:title" content="Autoresearch — Autonomous AI Experimentation">
+<meta property="og:description" content="How AI agents autonomously run experiments and optimize themselves.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script defer src="https://analytics-dashboard-two-blue.vercel.app/tracker.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1018;--bg2:#111820;--bg3:#182028;
+  --text:#c8d4e0;--dim:#586878;--faint:#1e2838;
+  --green:#22c55e;--green-dim:#16a34a;--green-bg:rgba(34,197,94,.06);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.06);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,.06);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.06);
+  --rule:rgba(200,212,224,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Manrope',sans-serif;font-weight:300;line-height:1.75;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+.cn{font-family:'Noto Sans SC',sans-serif;}
+.mono{font-family:'Geist Mono',monospace;}
+h1,h2,h3{font-family:'Manrope',sans-serif;}
+
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.rv.vis{opacity:1;transform:translateY(0);}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.18s}.rv.d3{transition-delay:.3s}
+
+section{max-width:960px;margin:0 auto;padding:80px 40px;position:relative;z-index:1;}
+@media(max-width:700px){section{padding:50px 20px;}}
+.sec-label{font-family:'Geist Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:1rem;}
+h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.3rem;}
+.h2cn{font-family:'Noto Sans SC',sans-serif;font-weight:200;font-size:clamp(.82rem,1.4vw,.95rem);color:var(--dim);margin-bottom:2rem;}
+
+/* ═══ HERO ═══ */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:60px;}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+.hero-z{position:relative;z-index:2;}
+.hero-badge{
+  font-family:'Geist Mono',monospace;font-size:.6rem;font-weight:500;letter-spacing:.15em;
+  color:var(--green);background:var(--green-bg);border:1px solid rgba(34,197,94,.15);
+  padding:5px 16px;border-radius:100px;display:inline-block;margin-bottom:20px;
+}
+h1.hero-t{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;}
+.hero-cn{font-family:'Noto Sans SC',sans-serif;font-weight:200;font-size:clamp(.95rem,1.8vw,1.2rem);color:var(--dim);margin-top:8px;}
+.hero-desc{max-width:540px;margin-top:20px;font-size:.9rem;color:var(--dim);}
+
+/* ═══ FLOW DIAGRAM ═══ */
+.flow{display:flex;flex-direction:column;gap:0;align-items:center;margin-top:32px;}
+.flow-step{
+  display:flex;align-items:center;gap:16px;width:100%;max-width:600px;
+  padding:18px 22px;background:var(--bg2);border:1px solid var(--faint);
+  border-radius:12px;position:relative;
+}
+.flow-step .step-num{
+  font-family:'Geist Mono',monospace;font-size:.7rem;font-weight:700;
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.flow-step h3{font-size:.9rem;font-weight:600;margin-bottom:2px;}
+.flow-step p{font-size:.78rem;color:var(--dim);}
+.flow-step .cn-text{font-family:'Noto Sans SC',sans-serif;font-size:.7rem;color:rgba(200,212,224,.25);margin-top:2px;}
+.flow-arrow{color:var(--dim);font-size:.8rem;padding:4px 0;opacity:.3;}
+
+.s-green .step-num{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.s-blue .step-num{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+.s-amber .step-num{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.2);}
+.s-red .step-num{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+
+/* ═══ COMPARISON ═══ */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;}
+@media(max-width:700px){.comp-grid{grid-template-columns:1fr;}}
+.comp-card{
+  background:var(--bg2);border:1px solid var(--faint);border-radius:14px;
+  padding:24px 22px;position:relative;overflow:hidden;
+}
+.comp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.5;}
+.comp-card.ml::before{background:var(--green);}
+.comp-card.skill::before{background:var(--blue);}
+.comp-card .comp-tag{
+  font-family:'Geist Mono',monospace;font-size:.55rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 10px;border-radius:5px;display:inline-block;margin-bottom:12px;
+}
+.comp-card.ml .comp-tag{background:var(--green-bg);color:var(--green);}
+.comp-card.skill .comp-tag{background:var(--blue-bg);color:var(--blue);}
+.comp-card h3{font-size:1rem;font-weight:600;margin-bottom:6px;}
+.comp-card p{font-size:.82rem;color:var(--dim);}
+.comp-card .cn-text{font-family:'Noto Sans SC',sans-serif;font-size:.75rem;color:rgba(200,212,224,.25);margin-top:6px;}
+.comp-card ul{list-style:none;padding:0;margin-top:10px;}
+.comp-card li{font-size:.78rem;color:var(--text);padding:5px 0;border-bottom:1px solid var(--rule);}
+.comp-card li:last-child{border-bottom:none;}
+.comp-card li::before{content:'>';font-family:'Geist Mono',monospace;margin-right:8px;opacity:.3;font-size:.7rem;}
+
+/* ═══ LIVE DEMO ═══ */
+.demo{
+  background:var(--bg2);border:1px solid var(--faint);border-radius:14px;
+  overflow:hidden;margin-top:28px;
+}
+.demo-bar{
+  display:flex;align-items:center;gap:6px;padding:10px 16px;
+  background:var(--bg3);border-bottom:1px solid var(--faint);
+}
+.demo-dot{width:8px;height:8px;border-radius:50%;}
+.demo-dot.r{background:#ef4444;}.demo-dot.y{background:#f59e0b;}.demo-dot.g{background:#22c55e;}
+.demo-title{flex:1;text-align:center;font-family:'Geist Mono',monospace;font-size:.65rem;color:var(--dim);}
+.demo-body{padding:20px;font-family:'Geist Mono',monospace;font-size:.75rem;line-height:1.8;}
+.demo-body .line{opacity:0;transform:translateX(-8px);animation:lineIn .3s ease forwards;}
+@keyframes lineIn{to{opacity:1;transform:translateX(0);}}
+.d-green{color:var(--green);}.d-red{color:var(--red);}.d-blue{color:var(--blue);}.d-amber{color:var(--amber);}.d-dim{color:var(--dim);}
+.d-cursor{display:inline-block;width:7px;height:14px;background:var(--green);animation:blink 1s step-end infinite;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ═══ KEY PRINCIPLES ═══ */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+@media(max-width:700px){.principles{grid-template-columns:1fr;}}
+.principle{
+  background:var(--bg2);border:1px solid var(--faint);border-radius:12px;
+  padding:20px 18px;text-align:center;
+}
+.principle .p-num{font-family:'Geist Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--green);opacity:.3;margin-bottom:8px;}
+.principle h3{font-size:.85rem;font-weight:600;margin-bottom:4px;}
+.principle p{font-size:.75rem;color:var(--dim);}
+.principle .cn-text{font-family:'Noto Sans SC',sans-serif;font-size:.68rem;color:rgba(200,212,224,.2);margin-top:4px;}
+
+/* ═══ CREDITS ═══ */
+.credits{
+  display:flex;gap:16px;margin-top:28px;flex-wrap:wrap;
+}
+.credit{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg2);border:1px solid var(--faint);border-radius:12px;
+  padding:16px 20px;flex:1;min-width:260px;
+  text-decoration:none;color:inherit;transition:border-color .2s;
+}
+.credit:hover{border-color:rgba(255,255,255,.08);}
+.credit-avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.credit h3{font-size:.85rem;font-weight:600;}
+.credit p{font-size:.7rem;color:var(--dim);}
+
+footer{text-align:center;padding:50px 40px;border-top:1px solid var(--rule);max-width:960px;margin:0 auto;}
+footer p{font-size:.72rem;color:var(--dim);}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-z">
+    <div class="hero-badge rv">Autonomous Experimentation</div>
+    <h1 class="hero-t rv d1">Autoresearch</h1>
+    <div class="hero-cn rv d2">自主研究 — AI代理自动运行实验并优化自身</div>
+    <p class="hero-desc rv d3">
+      What if AI agents could run their own experiments, measure results, and improve themselves —
+      autonomously, overnight, without human intervention? That's autoresearch.
+    </p>
+    <p class="hero-desc rv d3 cn" style="font-size:.8rem;opacity:.4;margin-top:.5rem;">
+      如果AI代理能自主运行实验、衡量结果并自我改进——一夜之间，无需人类干预？这就是自主研究。
+    </p>
+  </div>
+</section>
+
+<!-- ═══ THE CORE LOOP ═══ -->
+<section>
+  <div class="sec-label rv">The Core Loop 核心循环</div>
+  <h2 class="rv d1">How Autoresearch Works</h2>
+  <div class="h2cn rv d2">自主研究的运行原理 — 一个永不停歇的实验循环</div>
+
+  <div class="flow">
+    <div class="flow-step s-blue rv"><div class="step-num">1</div><div><h3>Measure Baseline</h3><p>Run the current system and score it against objective criteria. This is experiment #0.</p><div class="cn-text">运行当前系统并根据客观标准评分。这是第0次实验。</div></div></div>
+    <div class="flow-arrow rv">&#8595;</div>
+    <div class="flow-step s-amber rv"><div class="step-num">2</div><div><h3>Analyze Failures</h3><p>Examine what went wrong. Identify the most common failure pattern. Form a hypothesis.</p><div class="cn-text">分析哪里出了问题。识别最常见的失败模式。形成假设。</div></div></div>
+    <div class="flow-arrow rv">&#8595;</div>
+    <div class="flow-step s-green rv"><div class="step-num">3</div><div><h3>Mutate ONE Thing</h3><p>Change exactly one variable. Not five things at once — one. So you know what helped.</p><div class="cn-text">只改变一个变量。不要同时改五个——只改一个。这样你才知道什么有效。</div></div></div>
+    <div class="flow-arrow rv">&#8595;</div>
+    <div class="flow-step s-blue rv"><div class="step-num">4</div><div><h3>Run Experiment</h3><p>Execute the system N times with the same test inputs. Score every output.</p><div class="cn-text">用相同的测试输入执行系统N次。对每个输出评分。</div></div></div>
+    <div class="flow-arrow rv">&#8595;</div>
+    <div class="flow-step s-green rv"><div class="step-num">5</div><div><h3>Keep or Discard</h3><p>Score improved? <strong style="color:var(--green);">Keep.</strong> Same or worse? <strong style="color:var(--red);">Discard and revert.</strong> No sentimentality.</p><div class="cn-text">分数提高了？保留。相同或更差？丢弃并回滚。不留情面。</div></div></div>
+    <div class="flow-arrow rv">&#8595;</div>
+    <div class="flow-step s-amber rv"><div class="step-num">&#8634;</div><div><h3>Repeat Until Ceiling</h3><p>Go back to step 2. Run autonomously overnight. Stop at 95%+ or when the user returns.</p><div class="cn-text">回到第2步。整夜自主运行。在95%+时或用户返回时停止。</div></div></div>
+  </div>
+</section>
+
+<!-- ═══ TWO APPLICATIONS ═══ -->
+<section>
+  <div class="sec-label rv">Applications 应用场景</div>
+  <h2 class="rv d1">Two Flavors of Autoresearch</h2>
+  <div class="h2cn rv d2">自主研究的两种应用 — ML训练 vs AI技能优化</div>
+
+  <div class="comp-grid">
+    <div class="comp-card ml rv">
+      <span class="comp-tag">ML Training (Karpathy)</span>
+      <h3>Optimize Model Training</h3>
+      <p>AI agent modifies <code>train.py</code> — hyperparameters, architecture, optimizer settings — then runs 5-minute GPU experiments and keeps improvements.</p>
+      <div class="cn-text">AI代理修改train.py——超参数、架构、优化器设置——然后运行5分钟GPU实验并保留改进。</div>
+      <ul>
+        <li>Target: validation bits-per-byte</li>
+        <li>Budget: 5 min per experiment, single GPU</li>
+        <li>Mutations: learning rate, layers, attention heads</li>
+        <li>~100 experiments overnight</li>
+        <li>Stack: Python, PyTorch, NVIDIA GPU</li>
+      </ul>
+    </div>
+    <div class="comp-card skill rv d1">
+      <span class="comp-tag">Skill Optimization</span>
+      <h3>Optimize AI Prompts</h3>
+      <p>AI agent mutates a Claude Code skill's prompt — wording, examples, anti-patterns — then runs test inputs and keeps mutations that improve pass rate.</p>
+      <div class="cn-text">AI代理突变Claude Code技能的提示——措辞、示例、反模式——然后运行测试输入并保留提高通过率的突变。</div>
+      <ul>
+        <li>Target: binary eval pass rate</li>
+        <li>Budget: N runs per experiment</li>
+        <li>Mutations: instructions, examples, anti-patterns</li>
+        <li>Output: improved SKILL.md + changelog</li>
+        <li>Stack: Claude Code skill framework</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SIMULATED DEMO ═══ -->
+<section>
+  <div class="sec-label rv">Live Simulation 实时模拟</div>
+  <h2 class="rv d1">Watch It Run</h2>
+  <div class="h2cn rv d2">观看自主研究的运行过程</div>
+
+  <div class="demo rv d1">
+    <div class="demo-bar">
+      <div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div>
+      <div class="demo-title">autoresearch — experiment loop</div>
+    </div>
+    <div class="demo-body" id="demoBody"></div>
+  </div>
+
+  <div style="margin-top:20px;" class="rv d2">
+    <div class="sec-label" style="color:var(--amber);">Score Progression 分数进展</div>
+    <div style="background:var(--bg2);border:1px solid var(--faint);border-radius:12px;padding:16px;height:160px;position:relative;">
+      <canvas id="scoreChart" style="width:100%;height:100%;"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ KEY PRINCIPLES ═══ -->
+<section>
+  <div class="sec-label rv">Philosophy 哲学</div>
+  <h2 class="rv d1">The Principles That Make It Work</h2>
+  <div class="h2cn rv d2">让它有效的原则</div>
+
+  <div class="principles">
+    <div class="principle rv"><div class="p-num">01</div><h3>Binary Evals Only</h3><p>Pass or fail. No 1-10 scales. Scales compound variability and give unreliable results.</p><div class="cn-text">通过或失败。不用1-10分制。分数制会叠加变异性并产生不可靠的结果。</div></div>
+    <div class="principle rv d1"><div class="p-num">02</div><h3>One Variable at a Time</h3><p>Change one thing per experiment. If you change five things, you don't know which one helped.</p><div class="cn-text">每次实验只改一个变量。如果同时改五个，你不知道哪个有效。</div></div>
+    <div class="principle rv d2"><div class="p-num">03</div><h3>Baseline First</h3><p>Always measure the starting point before changing anything. No baseline = no signal.</p><div class="cn-text">在改变任何东西之前始终测量起点。没有基线=没有信号。</div></div>
+    <div class="principle rv"><div class="p-num">04</div><h3>Revert Ruthlessly</h3><p>If the score doesn't improve, revert. Complexity without improvement is pure cost.</p><div class="cn-text">如果分数没有提高，回滚。没有改进的复杂性是纯粹的成本。</div></div>
+    <div class="principle rv d1"><div class="p-num">05</div><h3>Log Everything</h3><p>Every experiment recorded — kept or discarded. The changelog is the most valuable artifact.</p><div class="cn-text">记录每次实验——保留或丢弃。变更日志是最有价值的产物。</div></div>
+    <div class="principle rv d2"><div class="p-num">06</div><h3>Run Autonomously</h3><p>Once started, don't stop to ask. Run overnight. The human will check in the morning.</p><div class="cn-text">一旦开始，不要停下来询问。整夜运行。人类早上会来查看。</div></div>
+  </div>
+</section>
+
+<!-- ═══ CREDITS ═══ -->
+<section>
+  <div class="sec-label rv">Credits 致谢</div>
+  <h2 class="rv d1">Built On</h2>
+  <div class="h2cn rv d2">基于以下项目</div>
+  <div class="credits">
+    <a class="credit rv" href="https://github.com/karpathy/autoresearch" target="_blank">
+      <div class="credit-avatar" style="background:var(--green-bg);border:1px solid rgba(34,197,94,.15);">&#129302;</div>
+      <div><h3>karpathy/autoresearch</h3><p>AI agents running research on single-GPU nanochat training automatically</p></div>
+    </a>
+    <a class="credit rv d1" href="https://github.com/olelehmann100kMRR/autoresearch-skill" target="_blank">
+      <div class="credit-avatar" style="background:var(--blue-bg);border:1px solid rgba(59,130,246,.15);">&#128218;</div>
+      <div><h3>autoresearch-skill</h3><p>Claude Code skill adaptation of autoresearch for prompt optimization</p></div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>Autoresearch Showcase &mdash; 自主研究展示</p>
+  <p style="margin-top:4px;opacity:.4;">&copy; 2026</p>
+  <p style="margin-top:.8rem;"><a href="https://github.com/gewenbo888/autoresearch-showcase" target="_blank" style="color:var(--dim);font-size:.68rem;letter-spacing:.08em;text-decoration:none;border:1px solid var(--faint);padding:6px 16px;border-radius:100px;transition:all .3s;display:inline-block;" onmouseover="this.style.borderColor='rgba(34,197,94,.3)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--faint)';this.style.color='var(--dim)'">View on GitHub &rarr;</a></p>
+</footer>
+
+<script>
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.05});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// Hero canvas — ascending experiment dots
+(function(){
+  const c=document.getElementById('heroCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  const dots=Array.from({length:50},(_,i)=>({
+    x:Math.random()*2000,y:Math.random()*2000,
+    vx:(Math.random()-.5)*.1,vy:-(0.1+Math.random()*.2),
+    r:1+Math.random()*2,
+    color:Math.random()>.3?'#22c55e':'#ef4444',
+    alpha:.06+Math.random()*.1
+  }));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    dots.forEach(d=>{
+      d.x+=d.vx;d.y+=d.vy;
+      if(d.y<-10){d.y=H+10;d.x=Math.random()*W;d.color=Math.random()>.3?'#22c55e':'#ef4444';}
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle=d.color;ctx.globalAlpha=d.alpha;ctx.fill();ctx.globalAlpha=1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Demo terminal simulation
+(function(){
+  const body=document.getElementById('demoBody');
+  const experiments=[
+    {lines:[
+      {cls:'d-blue',text:'[baseline] Running skill 5 times with test inputs...'},
+      {cls:'d-dim',text:'  Run 1: ✓✓✓✗  Run 2: ✓✓✗✗  Run 3: ✓✓✓✗  Run 4: ✓✓✓✓  Run 5: ✓✓✗✗'},
+      {cls:'d-amber',text:'[baseline] Score: 14/20 (70.0%) — this is experiment #0'},
+    ]},
+    {lines:[
+      {cls:'d-dim',text:'[exp 1] Hypothesis: numbering failures → add anti-numbering rule'},
+      {cls:'d-dim',text:'  Run 1: ✓✓✓✓  Run 2: ✓✓✓✗  Run 3: ✓✓✓✓  Run 4: ✓✓✓✗  Run 5: ✓✓✓✓'},
+      {cls:'d-green',text:'[exp 1] Score: 18/20 (90.0%) ▲ KEEP — improved from 70% to 90%'},
+    ]},
+    {lines:[
+      {cls:'d-dim',text:'[exp 2] Hypothesis: color compliance → enforce specific hex codes'},
+      {cls:'d-dim',text:'  Run 1: ✓✓✓✗  Run 2: ✓✓✓✓  Run 3: ✓✓✓✗  Run 4: ✓✓✓✓  Run 5: ✓✓✓✓'},
+      {cls:'d-red',text:'[exp 2] Score: 18/20 (90.0%) — DISCARD — no improvement, reverting'},
+    ]},
+    {lines:[
+      {cls:'d-dim',text:'[exp 3] Hypothesis: add worked example showing correct output'},
+      {cls:'d-dim',text:'  Run 1: ✓✓✓✓  Run 2: ✓✓✓✓  Run 3: ✓✓✓✗  Run 4: ✓✓✓✓  Run 5: ✓✓✓✓'},
+      {cls:'d-green',text:'[exp 3] Score: 19/20 (95.0%) ▲ KEEP — hit 95% ceiling, stopping'},
+    ]},
+    {lines:[
+      {cls:'d-green',text:''},
+      {cls:'d-green',text:'═══ AUTORESEARCH COMPLETE ═══'},
+      {cls:'d-amber',text:'Baseline: 14/20 (70%) → Final: 19/20 (95%)  |  +25% improvement'},
+      {cls:'d-dim',text:'Experiments: 3 total | 2 kept | 1 discarded'},
+    ]},
+  ];
+  let running=false;
+  const demoObs=new IntersectionObserver(es=>{
+    if(es[0].isIntersecting&&!running){
+      running=true;body.innerHTML='';
+      let delay=0;
+      experiments.forEach(exp=>{
+        exp.lines.forEach(l=>{
+          delay+=350;
+          setTimeout(()=>{
+            const div=document.createElement('div');
+            div.className=`line ${l.cls}`;div.style.animationDelay='0s';
+            div.textContent=l.text;body.appendChild(div);
+            body.scrollTop=body.scrollHeight;
+          },delay);
+        });
+        delay+=600;
+      });
+      setTimeout(()=>{
+        const cur=document.createElement('span');cur.className='d-cursor';
+        body.lastChild.appendChild(cur);
+      },delay+200);
+    }
+  },{threshold:.3});
+  demoObs.observe(body);
+})();
+
+// Score chart
+(function(){
+  const c=document.getElementById('scoreChart');
+  const ctx=c.getContext('2d');
+  const data=[70,90,90,95];const labels=['#0 Baseline','#1 Keep','#2 Discard','#3 Keep'];
+  const colors=['#3b82f6','#22c55e','#ef4444','#22c55e'];
+
+  const chartObs=new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){
+      const W=c.width=c.offsetWidth*2,H=c.height=c.offsetHeight*2;
+      ctx.scale(2,2);const w=W/2,h=H/2;
+      const padT=12,padB=24,padL=30,padR=10;
+      const plotW=w-padL-padR,plotH=h-padT-padB;
+
+      // Grid
+      ctx.strokeStyle='rgba(200,212,224,.06)';ctx.lineWidth=.5;
+      [0,25,50,75,100].forEach(v=>{
+        const y=padT+plotH-(v/100)*plotH;
+        ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+        ctx.fillStyle='#586878';ctx.font='500 8px Manrope';ctx.textAlign='right';
+        ctx.fillText(v+'%',padL-6,y+3);
+      });
+
+      // Line
+      setTimeout(()=>{
+        ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.lineJoin='round';
+        ctx.beginPath();
+        data.forEach((v,i)=>{
+          const x=padL+(i/(data.length-1))*plotW;
+          const y=padT+plotH-(v/100)*plotH;
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+
+        // Dots
+        data.forEach((v,i)=>{
+          const x=padL+(i/(data.length-1))*plotW;
+          const y=padT+plotH-(v/100)*plotH;
+          ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+          ctx.fillStyle=colors[i];ctx.fill();
+          ctx.font='500 8px Geist Mono';ctx.fillStyle='#c8d4e0';ctx.textAlign='center';
+          ctx.fillText(labels[i],x,h-6);
+        });
+      },300);
+
+      chartObs.disconnect();
+    }
+  },{threshold:.3});
+  chartObs.observe(c);
+})();
+</script>
+</body>
+</html>
